@@ -2,7 +2,7 @@
 
 use tui::{
     layout::{Constraint, Direction, Layout, Rect},
-    style::Modifier,
+    style::{Modifier},
     text::{Span, Spans, Text},
     widgets::{Block, BorderType, Borders, List, ListItem, Paragraph},
 };
@@ -65,7 +65,11 @@ fn indexed_pokientry_item<'a>(app: &'a App, (index, pokientry): (usize, &Pokidex
 /// Widget to show a single pokientry
 fn pokientry_item(title: String, completed: bool, selected: bool, app: &App) -> ListItem {
     let style = if selected {
-        app.selection_style()
+        if app.blink_state {
+            app.selection_style().add_modifier(Modifier::BOLD)
+        } else {
+            app.selection_style()
+        }
     } else {
         app.default_style()
     };
@@ -84,7 +88,6 @@ fn pokientry_item(title: String, completed: bool, selected: bool, app: &App) -> 
 
     pokientry.style(style)
 }
-
 /// Input field to make a new pokientry
 pub fn pokientry_input(app: &App) -> Paragraph {
     let style = match app.input_mode {

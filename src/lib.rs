@@ -69,6 +69,8 @@ pub struct App {
     pub selected_pokientry: Option<usize>,
     /// Application Configs
     pub configs: Configs,
+    pub blink_state: bool, // <- Add this
+    pub show_image: bool,
 }
 
 impl App {
@@ -80,6 +82,8 @@ impl App {
             input_mode: InputMode::Normal,
             should_exit: false,
             configs,
+            blink_state: true,   // 👈 add this
+            show_image: false,
         }
     }
 

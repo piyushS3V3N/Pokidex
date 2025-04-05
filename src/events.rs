@@ -1,3 +1,4 @@
+// events.rs
 use crate::{actions, App, InputMode, TerminalFrame};
 use crossterm::event::{KeyCode, KeyEvent};
 use tui::layout::Rect;
@@ -14,18 +15,32 @@ pub fn handle_events(event: KeyEvent, app: &mut App) {
 fn handle_normal_events(app: &mut App, keycode: KeyCode) {
     let keybindings = &app.configs.keybindings;
 
-    if keycode == keybindings.new_pokientry {
-        actions::new_pokientry(app);
-    } else if keycode == keybindings.exit_app {
-        actions::exit_app(app);
-    } else if keycode == keybindings.list_up {
-        actions::list_up(app);
-    } else if keycode == keybindings.list_down {
-        actions::list_down(app);
-    } else if keycode == keybindings.check_and_uncheck_pokientry {
-        actions::check_and_uncheck_pokientry(app);
-    } else if keycode == keybindings.delete_pokientry {
-        actions::delete_pokientry(app);
+    match keycode {
+        KeyCode::Char('q') => app.should_exit = true,
+        KeyCode::Char('i') => app.show_image = true,
+        KeyCode::Char('j') => {
+            if let Some(index) = app.selected_pokientry {
+                if index + 1 < app.pokientrys.len() {
+                    app.selected_pokientry = Some(index + 1);
+                }
+            } else {
+                app.selected_pokientry = Some(0);
+            }
+        }
+        KeyCode::Char('k') => {
+            if let Some(index) = app.selected_pokientry {
+                if index > 0 {
+                    app.selected_pokientry = Some(index - 1);
+                }
+            }
+        }
+        code if code == keybindings.new_pokientry => actions::new_pokientry(app),
+        code if code == keybindings.exit_app => actions::exit_app(app),
+        code if code == keybindings.list_up => actions::list_up(app),
+        code if code == keybindings.list_down => actions::list_down(app),
+        code if code == keybindings.check_and_uncheck_pokientry => actions::check_and_uncheck_pokientry(app),
+        code if code == keybindings.delete_pokientry => actions::delete_pokientry(app),
+        _ => {}
     }
 }
 
@@ -33,30 +48,27 @@ fn handle_normal_events(app: &mut App, keycode: KeyCode) {
 fn handle_adding_events(app: &mut App, keycode: KeyCode) {
     let keybindings = &app.configs.keybindings;
 
-    if keycode == keybindings.save_pokientry && !app.input.trim().is_empty() {
-        actions::save_pokientry(app);
-    } else if keycode == keybindings.exit_adding {
-        actions::exit_adding(app);
-    } else if let KeyCode::Char(c) = keycode {
-        actions::input_add_char(app, c);
-    } else if let KeyCode::Backspace = keycode {
-        actions::input_del_char(app);
+    match keycode {
+        code if code == keybindings.save_pokientry && !app.input.trim().is_empty() => {
+            actions::save_pokientry(app);
+        }
+        code if code == keybindings.exit_adding => actions::exit_adding(app),
+        KeyCode::Char(c) => actions::input_add_char(app, c),
+        KeyCode::Backspace => actions::input_del_char(app),
+        _ => {}
     }
 }
 
 /// Handle cursor when typing
 pub fn handle_input_cursor(app: &App, frame: &mut TerminalFrame, chunks: &[Rect]) {
     match app.input_mode {
-        // Hide the cursor. `Frame` does this by default, so we don't need to do anything here
         InputMode::Normal => (),
         InputMode::Adding => {
-            // Make the cursor visible and ask tui-rs to put it at the specified coordinates after rendering
             frame.set_cursor(
-                // Put cursor past the end of the input text
                 chunks[1].x + app.input.len() as u16 + 1,
-                // Move one line down, from the border to the input line
                 chunks[1].y + 1,
             )
         }
     }
 }
+
