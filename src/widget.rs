@@ -9,6 +9,8 @@ use tui::{
 
 use crate::{configs::keycode_to_string, App, InputMode, Pokidex};
 
+
+
 /// Split terminal view
 pub fn main_chunks(area: Rect) -> Vec<Rect> {
     let chunks = Layout::default()
@@ -39,7 +41,7 @@ pub fn pokientry_list(app: &App) -> List {
 
     List::new(pokientrys).style(app.default_style()).block(
         Block::default()
-            .title("Work To Do :') ")
+            .title(" Work To Do :') ")
             .borders(Borders::ALL)
             .border_type(BorderType::Rounded)
             .style(app.default_style()),
