@@ -26,9 +26,14 @@ jobs:
           if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
             # Install necessary dependencies on Ubuntu
             sudo apt-get update
-            sudo apt-get install -y build-essential
+            sudo apt-get install -y build-essential pkg-config libssl-dev llvm
             # Install any other dependencies your project requires here
           elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
+            # Ensure Homebrew is installed on macOS (if not already installed)
+            if ! command -v brew &> /dev/null; then
+              echo "Homebrew not found, installing..."
+              /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+            fi
             # Install necessary dependencies on macOS
             brew install llvm
             # Install any other dependencies your project requires here
