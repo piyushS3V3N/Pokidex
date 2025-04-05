@@ -41,6 +41,11 @@ jobs:
             # Install any other dependencies your project requires here
           fi
 
+      - name: Configure Git identity
+        run: |
+          git config --global user.email "youremail@example.com"
+          git config --global user.name "Your Name"
+      
       - name: Extract version from Cargo.toml
         id: extract_version
         run: |
