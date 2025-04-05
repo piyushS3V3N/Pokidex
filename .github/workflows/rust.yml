@@ -34,6 +34,8 @@ jobs:
               echo "Homebrew not found, installing..."
               /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
             fi
+            # Ensure Homebrew is in PATH for this session
+            eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
             # Install necessary dependencies on macOS
             brew install llvm
             # Install any other dependencies your project requires here
