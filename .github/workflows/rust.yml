@@ -1,8 +1,9 @@
-name: Rust
+name: Release
 
 on:
   push:
-    branches: [ "master" ]
+    tags:
+      - 'v*.*.*'
   pull_request:
     branches: [ "master" ]
 
@@ -11,15 +12,43 @@ env:
 
 jobs:
   build:
-
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        target: [x86_64-unknown-linux-gnu, aarch64-apple-darwin]
 
     steps:
     - uses: actions/checkout@v4
+    - name: Set up Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        target: ${{ matrix.target }}
+
     - name: Build
-      run: cargo build --verbose
+      run: cargo build --release --target ${{ matrix.target }}
 
     - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v4.6.2
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.target }}-build
+        path: target/${{ matrix.target }}/release
 
-              
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download build artifacts
+      uses: actions/download-artifact@v3
+      with:
+        path: ./build
+        name: ${{ matrix.target }}-build
+
+    - name: Create release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: ./build/*
