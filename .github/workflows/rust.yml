@@ -54,16 +54,7 @@ jobs:
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
           echo "Version found: $VERSION"
 
-      - name: Create Git tag for release
-        run: |
-          # Ensure the repository is clean and up-to-date
-          git fetch --tags
-          
-          # Create the tag based on the version found in Cargo.toml
-          git tag -a "v${{ env.VERSION }}" -m "Release version ${{ env.VERSION }}"
-          
-          # Push the tag to GitHub
-          git push origin "v${{ env.VERSION }}"
+
 
       - name: Build the project with Cargo
         run: |
