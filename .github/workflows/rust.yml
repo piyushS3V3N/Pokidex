@@ -2,11 +2,8 @@ name: Build and Package Executable (Rust)
 
 on:
   push:
-    tags:
-      - 'v*'  # Trigger on version tags like v1.0.0
-  pull_request:
     branches:
-      - main
+      - main  # Trigger on pushes to the main branch
 
 jobs:
   build:
@@ -36,6 +33,25 @@ jobs:
             brew install llvm
             # Install any other dependencies your project requires here
           fi
+
+      - name: Extract version from Cargo.toml
+        id: extract_version
+        run: |
+          # Extract the version from Cargo.toml (assuming it's under the [package] section)
+          VERSION=$(grep '^version' Cargo.toml | cut -d '=' -f 2 | tr -d '[:space:]')
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          echo "Version found: $VERSION"
+
+      - name: Create Git tag for release
+        run: |
+          # Ensure the repository is clean and up-to-date
+          git fetch --tags
+          
+          # Create the tag based on the version found in Cargo.toml
+          git tag -a "v${{ env.VERSION }}" -m "Release version ${{ env.VERSION }}"
+          
+          # Push the tag to GitHub
+          git push origin "v${{ env.VERSION }}"
 
       - name: Build the project with Cargo
         run: |
